@@ -15,3 +15,8 @@ print(date_ut)
 date_test = datetime.fromtimestamp(ut - 86400.00)
 
 print(date_test)
+
+[year, month, day] = datetime(2023, 10, 3).strftime("%Y-%m-%d").split('-')
+test_month = int(month)
+print(type(test_month))
+print(test_month)
