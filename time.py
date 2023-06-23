@@ -1,5 +1,6 @@
 import time
 from datetime import datetime
+from calendar import isleap
 
 # unix時間からdatetimeを算出
 ut = time.time()
@@ -20,3 +21,12 @@ print(date_test)
 test_month = int(month)
 print(type(test_month))
 print(test_month)
+
+def urudoshi(years):
+    result = isleap(years)
+    if result:
+        return "うるう年です"
+    else:
+        return "うるう年違います"
+    
+print(urudoshi(2100))

@@ -2,6 +2,7 @@ from forex_python.converter import CurrencyRates
 import time
 from datetime import datetime
 import statistics
+from calendar import isleap
 
 # 試しに先週の JPY/USDの平均を算出する
 
@@ -33,13 +34,30 @@ def last_weeks_rates(uni):
     # 一週分の平均を返す
     return statistics.mean(rates)
 
+
+# 先月分のレートの平均を算出する
 def last_months_rates(uni):
     tmp = datetime.fromtimestamp(uni)
     [year, month, day] = tmp.strftime("%Y-%m-%d").split('-')
-    # monthが2, 4, 6, 9, 11の月は30日間
+
+    # うるう年かどうかチェック
+    detect_leap = isleap(int(year))
+
+
+    # monthが2, 4, 6, 9, 11の月は30日間でfalse
+    # 1, 3, 5, 7, 8, 10, 12の月はture
+    # is_month = any([1, 3, 5, 7, 8, 10, 12])
+
     # そうでない月は31日間のレートの平均を出す
     # 2月のみ28日間でうるう年の時は29日間
-    return month
+    # もし一月なら先月である12月は去年となる
+    if month == 2 or month == 4 or month == 9 or month == 11 :
+        number_of_days = 30
+    else:
+        number_of_days = 31
+    return detect_leap
+
+
 
 weeks_test = last_weeks_rates(today_ut)
 print(weeks_test)
