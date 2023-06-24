@@ -22,14 +22,14 @@ print(f"今日のJPY/USDは{rates['USD']}")
 #　unix時間から一週間分の日付を算出
 # 一週分のレートの平均を出す
 def last_weeks_rates(uni):
-    week_id = [1, 2, 3, 4, 5, 6, 7]
     rates = []
-    for i in week_id:
+    for i in range(1, 8):
         tmp = uni - (86400 * i)
         day_stamp = datetime.fromtimestamp(tmp)
         day_rate = obj.get_rates(currency, day_stamp)
         # print(day_stamp)
         # print(day_rate['USD'])
+        # 便宜上USDのみだが本番は他の値も取得する
         rates.append(day_rate['USD'])
     # 一週分の平均を返す
     return statistics.mean(rates)
@@ -77,7 +77,17 @@ def last_months_rates(uni):
 
     # range関数にmodified_yearとmodified_monthを使って
     # レートを取得する
-    return [modified_year, modified_month, number_of_days]
+    rates = []
+    # rangeの仕様上number_of_timeを1増やす
+    for i in range(1, (number_of_days + 1)):
+        last_months_day_stamp = datetime(modified_year, modified_month, i)
+        print(last_months_day_stamp)
+        day_rate = obj.get_rates(currency, last_months_day_stamp)
+        rates.append(day_rate['USD'])
+
+    # 先月分の平均を返す
+    return statistics.mean(rates)
+    # return [modified_year, modified_month, number_of_days]
 
 
 
@@ -85,8 +95,5 @@ weeks_test = last_weeks_rates(today_ut)
 print(weeks_test)
 months_test = last_months_rates(today_ut)
 print(months_test)
-
-testing = last_months_rates(1047567600.0)
-print(testing)
 
 # レートは小数点以下四桁までで四捨五入した方が良いかも
