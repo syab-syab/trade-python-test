@@ -30,3 +30,5 @@ def urudoshi(years):
         return "うるう年違います"
     
 print(urudoshi(2100))
+testing = datetime(2003, 3, 14)
+print(testing.timestamp())
