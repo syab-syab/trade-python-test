@@ -19,18 +19,30 @@ print(f"今日は{today_stamp}")
 rates = obj.get_rates(currency, today_stamp)
 print(f"今日のJPY/USDは{rates['USD']}")
 
+
+# 月と週のレート取得共通の関数
+# target_timeはunix時間
+def fetch_rates(rates, start_val, end_val, target_time) :
+    # end_valには週の場合7を代入する
+        for i in range(start_val, end_val) :
+            tmp = 0
+            if end_val == 8 :
+                tmp = target_time - (86400 * i)
+            else :
+                tmp = target_time + (86400 * i)
+            day_stamp = datetime.fromtimestamp(tmp)
+            print(day_stamp)
+            day_rate = obj.get_rates(currency, day_stamp)
+            # 便宜上USDのみだが本番は他の値も取得する
+            rates.append(day_rate['USD'])
+
+
 #　unix時間から一週間分の日付を算出
 # 一週分のレートの平均を出す
 def last_weeks_rates(uni):
     rates = []
-    for i in range(1, 8):
-        tmp = uni - (86400 * i)
-        day_stamp = datetime.fromtimestamp(tmp)
-        day_rate = obj.get_rates(currency, day_stamp)
-        # print(day_stamp)
-        # print(day_rate['USD'])
-        # 便宜上USDのみだが本番は他の値も取得する
-        rates.append(day_rate['USD'])
+    # rangeの仕様上終点を8に
+    fetch_rates(rates, 1, 8, uni)
     # 一週分の平均を返す
     return statistics.mean(rates)
 
@@ -39,8 +51,6 @@ def last_weeks_rates(uni):
 def last_months_rates(uni):
     tmp = datetime.fromtimestamp(uni)
     [year, month, day] = tmp.strftime("%Y-%m-%d").split('-')
-
-   
 
     # 取得する先月の日数
     number_of_days = 0
@@ -54,7 +64,6 @@ def last_months_rates(uni):
 
     # うるう年かどうかチェック
     detect_leap = isleap(modified_year)
-
 
     # 取得した月 - 1 の月だから
     # 例えば、2, 4, 6, 9, 11 なら number_of_daysは31になる
@@ -78,16 +87,14 @@ def last_months_rates(uni):
     # range関数にmodified_yearとmodified_monthを使って
     # レートを取得する
     rates = []
-    # rangeの仕様上number_of_timeを1増やす
-    for i in range(1, (number_of_days + 1)):
-        last_months_day_stamp = datetime(modified_year, modified_month, i)
-        print(last_months_day_stamp)
-        day_rate = obj.get_rates(currency, last_months_day_stamp)
-        rates.append(day_rate['USD'])
+
+    # 共通の関数を使うため先月の一日目のunix時間を取得する
+    last_months_first_day = datetime(modified_year, modified_month, 1).timestamp()
+
+    fetch_rates(rates, 0, number_of_days, last_months_first_day)
 
     # 先月分の平均を返す
     return statistics.mean(rates)
-    # return [modified_year, modified_month, number_of_days]
 
 
 

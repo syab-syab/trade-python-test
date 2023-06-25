@@ -31,4 +31,9 @@ def urudoshi(years):
     
 print(urudoshi(2100))
 testing = datetime(2003, 3, 14)
-print(testing.timestamp())
+print(type(testing.timestamp()))
+tests = datetime(2023, 5, 1).timestamp()
+print(type(tests))
+
+print(type(ut))
+
