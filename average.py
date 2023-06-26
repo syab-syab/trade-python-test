@@ -4,8 +4,8 @@ from datetime import datetime
 import statistics
 from calendar import isleap
 
-# 試しに先週の JPY/USDの平均を算出する
-
+# JPY/USDの平均を算出する
+# 全関数共通の変数
 currency = 'JPY'
 
 obj = CurrencyRates()
@@ -13,12 +13,11 @@ obj = CurrencyRates()
 # まず今日のunix時間を取得
 today_ut = time.time()
 
-today_stamp = datetime.fromtimestamp(today_ut)
-print(f"今日は{today_stamp}")
-
-rates = obj.get_rates(currency, today_stamp)
-print(f"今日のJPY/USDは{rates['USD']}")
-
+# 今日の文のレート
+def today_rate(uni) :
+    today_stamp = datetime.fromtimestamp(uni)
+    rate = obj.get_rates(currency, today_stamp)['USD']
+    return rate
 
 # 月と週のレート取得共通の関数
 # target_timeはunix時間
@@ -97,7 +96,8 @@ def last_months_rates(uni):
     return statistics.mean(rates)
 
 
-
+today_test = today_rate(today_ut)
+print(today_test)
 weeks_test = last_weeks_rates(today_ut)
 print(weeks_test)
 months_test = last_months_rates(today_ut)
