@@ -37,3 +37,7 @@ print(type(tests))
 
 print(type(ut))
 
+tes_arr = {'one': 1, 'two': 2, 'three': 3}
+for k, v in tes_arr.items() :
+    tes_arr[k] += 1
+print(tes_arr)

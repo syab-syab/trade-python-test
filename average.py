@@ -4,6 +4,8 @@ from datetime import datetime
 import statistics
 from calendar import isleap
 
+# [重大]平均値よりも中央値の方が良いかも？
+
 # 取得したいのは
 # USD(アメリカドル)
 # EUR(ユーロ)
@@ -47,7 +49,20 @@ def today_rate(uni) :
 # 月と週のレート取得共通の関数
 # target_timeはunix時間
 def fetch_rates(rates, start_val, end_val, target_time) :
+        # ave_rates = {
+        # 'USD': 0,
+        # 'EUR': 0,
+        # 'GBP': 0,
+        # 'CHF': 0,
+        # 'AUD': 0,
+        # 'KRW': 0,
+        # 'CNY': 0
+        # }
     # end_valには週の場合7を代入する
+    # [TODO] USD以外の値を取得 → 平均値を算出できるように処理を書く
+    # 平均より中央値の方が良いかもしれない
+    # 下のforをforでさらに囲む必要があるかも
+    # (上の辞書に平均or中央値を格納していきたいから)
         for i in range(start_val, end_val) :
             tmp = 0
             if end_val == 8 :
@@ -56,9 +71,11 @@ def fetch_rates(rates, start_val, end_val, target_time) :
                 tmp = target_time + (86400 * i)
             day_stamp = datetime.fromtimestamp(tmp)
             print(day_stamp)
+            # day_rateに一日のレートがすべて入っている
             day_rate = obj.get_rates(currency, day_stamp)
             # 便宜上USDのみだが本番は他の値も取得する
             rates.append(day_rate['USD'])
+
 
 
 #　unix時間から一週間分の日付を算出
@@ -126,7 +143,7 @@ today_test = today_rate(today_ut)
 print(today_test)
 weeks_test = last_weeks_rates(today_ut)
 print(weeks_test)
-months_test = last_months_rates(today_ut)
-print(months_test)
+# months_test = last_months_rates(today_ut)
+# print(months_test)
 
 # レートは小数点以下四桁までで四捨五入した方が良いかも
