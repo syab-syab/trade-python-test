@@ -4,6 +4,15 @@ from datetime import datetime
 import statistics
 from calendar import isleap
 
+# 取得したいのは
+# USD(アメリカドル)
+# EUR(ユーロ)
+# GBP(イギリスポンド)
+# CHF(スイスフラン)
+# AUD(オーストラリアドル)
+# KRW(韓国ウォン)
+# CNY(中国元)
+
 # JPY/USDの平均を算出する
 # 全関数共通の変数
 currency = 'JPY'
@@ -16,8 +25,25 @@ today_ut = time.time()
 # 今日の文のレート
 def today_rate(uni) :
     today_stamp = datetime.fromtimestamp(uni)
-    rate = obj.get_rates(currency, today_stamp)['USD']
-    return rate
+    # rate = obj.get_rates(currency, today_stamp)['USD']
+    rate_usd = obj.get_rates(currency, today_stamp)['USD']
+    rate_eur = obj.get_rates(currency, today_stamp)['EUR']
+    rate_gbp = obj.get_rates(currency, today_stamp)['GBP']
+    rate_chf = obj.get_rates(currency, today_stamp)['CHF']
+    rate_aud = obj.get_rates(currency, today_stamp)['AUD']
+    rate_krw = obj.get_rates(currency, today_stamp)['KRW']
+    rate_cny = obj.get_rates(currency, today_stamp)['CNY']
+    today_rates = {
+        'USD': rate_usd,
+        'EUR': rate_eur,
+        'GBP': rate_gbp,
+        'CHF': rate_chf,
+        'AUD': rate_aud,
+        'KRW': rate_krw,
+        'CNY': rate_cny
+        }
+    # return rate
+    return today_rates
 
 # 月と週のレート取得共通の関数
 # target_timeはunix時間
@@ -66,6 +92,7 @@ def last_months_rates(uni):
 
     # 取得した月 - 1 の月だから
     # 例えば、2, 4, 6, 9, 11 なら number_of_daysは31になる
+    # この処理は切り出す
     if  modified_month == 4 or modified_month == 6 or modified_month == 9 or modified_month == 11 :
         number_of_days = 30
     elif modified_month == 2 :
