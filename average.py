@@ -25,14 +25,14 @@ today_ut = time.time()
 # 今日の文のレート
 def today_rate(uni) :
     today_stamp = datetime.fromtimestamp(uni)
-    # rate = obj.get_rates(currency, today_stamp)['USD']
-    rate_usd = obj.get_rates(currency, today_stamp)['USD']
-    rate_eur = obj.get_rates(currency, today_stamp)['EUR']
-    rate_gbp = obj.get_rates(currency, today_stamp)['GBP']
-    rate_chf = obj.get_rates(currency, today_stamp)['CHF']
-    rate_aud = obj.get_rates(currency, today_stamp)['AUD']
-    rate_krw = obj.get_rates(currency, today_stamp)['KRW']
-    rate_cny = obj.get_rates(currency, today_stamp)['CNY']
+    rate = obj.get_rates(currency, today_stamp)
+    rate_usd = rate['USD']
+    rate_eur = rate['EUR']
+    rate_gbp = rate['GBP']
+    rate_chf = rate['CHF']
+    rate_aud = rate['AUD']
+    rate_krw = rate['KRW']
+    rate_cny = rate['CNY']
     today_rates = {
         'USD': rate_usd,
         'EUR': rate_eur,
@@ -42,7 +42,6 @@ def today_rate(uni) :
         'KRW': rate_krw,
         'CNY': rate_cny
         }
-    # return rate
     return today_rates
 
 # 月と週のレート取得共通の関数
