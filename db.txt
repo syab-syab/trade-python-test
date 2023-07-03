@@ -1,9 +1,28 @@
 データベーステーブル
 
+テーブル : rate
 id :　変更なし
-name : 通貨コード
-rate : レート
-when : どの時点のレートか(today, yesterday, lastweek, とか数値ではなく言葉で)
+currency_id : 通貨コード(文字列)
+              関連付けるかも
+rate : レート(数値)
+when_id(またはtag_id) : どの時点のレートか(today, yesterday, lastweek, とか数値ではなく文字列で)
+                        関連付けるのが良いかも
+※一応基準の通貨も(全部jpyだけど)
+(base_currency_id : ベースの通貨コードでcurrency_idと関連付けるテーブルは同じ)
+
+テーブル : currency_id
+id : 特になし
+name : 通貨コードの文字列(USD, EURなど)
+        JPYを入れるかどうか迷う
+
+テーブル : when(またはtag)
+id : 特になし
+name : todayやlastweek_average, lastmonth_averageなど
+        そのレートがいつのものかを表す
+
+
+
+
 
 ※1年前とか年単位の為替レートは年間の平均だからあらかじめ手動でデータベースに入れておく
 　年号は例外で数値で入れた方が良いかも2021,2020とか
