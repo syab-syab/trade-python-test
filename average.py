@@ -24,7 +24,6 @@ today_ut = time.time()
 # 何となく他の関数と統一した方が万が一の混乱は避けられるかもしれないと思った
 def today_rate(uni) :
     today_stamp = datetime.fromtimestamp(uni)
-    print(today_stamp)
     rate = obj.get_rates(currency, today_stamp)
     rate_usd = rate['USD']
     rate_eur = rate['EUR']
@@ -43,6 +42,28 @@ def today_rate(uni) :
         'CNY': rate_cny
         }
     return today_rates
+
+# 〇〇〇 / JPYのレートを取得(今日の分のみ)
+def today_rate_jpy(uni) :
+    today_stamp = datetime.fromtimestamp(uni)
+    # 下の処理はfor文で回した方が良いかも
+    rate_usd = obj.get_rates('USD', today_stamp)
+    rate_eur = obj.get_rates('EUR', today_stamp)
+    rate_gbp = obj.get_rates('GBP', today_stamp)
+    rate_chf = obj.get_rates('CHF', today_stamp)
+    rate_aud = obj.get_rates('AUD', today_stamp)
+    rate_krw = obj.get_rates('KRW', today_stamp)
+    rate_cny = obj.get_rates('CNY', today_stamp)
+    today_rates_jpy = {
+        'USD/JPY': rate_usd['JPY'],
+        'EUR/JPY': rate_eur['JPY'],
+        'GBP/JPY': rate_gbp['JPY'],
+        'CHF/JPY': rate_chf['JPY'],
+        'AUD/JPY': rate_aud['JPY'],
+        'KRW/JPY': rate_krw['JPY'],
+        'CNY/JPY': rate_cny['JPY']
+        }
+    return today_rates_jpy
 
 # 月と週のレート取得共通の関数
 # target_timeはunix時間
@@ -140,6 +161,8 @@ def last_months_rates(uni):
 
 today_test = today_rate(today_ut)
 print(today_test)
+today_jpy_test = today_rate_jpy(today_ut)
+print(today_jpy_test)
 weeks_test = last_weeks_rates(today_ut)
 print(weeks_test)
 months_test = last_months_rates(today_ut)
