@@ -24,45 +24,19 @@ today_ut = time.time()
 # 何となく他の関数と統一した方が万が一の混乱は避けられるかもしれないと思った
 def today_rate(uni) :
     today_stamp = datetime.fromtimestamp(uni)
-    rate = obj.get_rates(currency, today_stamp)
-    rate_usd = rate['USD']
-    rate_eur = rate['EUR']
-    rate_gbp = rate['GBP']
-    rate_chf = rate['CHF']
-    rate_aud = rate['AUD']
-    rate_krw = rate['KRW']
-    rate_cny = rate['CNY']
-    today_rates = {
-        'USD': rate_usd,
-        'EUR': rate_eur,
-        'GBP': rate_gbp,
-        'CHF': rate_chf,
-        'AUD': rate_aud,
-        'KRW': rate_krw,
-        'CNY': rate_cny
-        }
+    today_rates = {'USD': 0, 'EUR': 0, 'GBP': 0, 'CHF': 0, 'AUD': 0, 'KRW': 0, 'CNY': 0}
+    for k in today_rates.keys() :
+        today_rates[k] = obj.get_rates(currency, today_stamp)[k]
+        # print(k + ': ' + str(today_rates[k]))
     return today_rates
 
 # 〇〇〇 / JPYのレートを取得(今日の分のみ)
 def today_rate_jpy(uni) :
     today_stamp = datetime.fromtimestamp(uni)
-    # 下の処理はfor文で回した方が良いかも
-    rate_usd = obj.get_rates('USD', today_stamp)
-    rate_eur = obj.get_rates('EUR', today_stamp)
-    rate_gbp = obj.get_rates('GBP', today_stamp)
-    rate_chf = obj.get_rates('CHF', today_stamp)
-    rate_aud = obj.get_rates('AUD', today_stamp)
-    rate_krw = obj.get_rates('KRW', today_stamp)
-    rate_cny = obj.get_rates('CNY', today_stamp)
-    today_rates_jpy = {
-        'USD/JPY': rate_usd['JPY'],
-        'EUR/JPY': rate_eur['JPY'],
-        'GBP/JPY': rate_gbp['JPY'],
-        'CHF/JPY': rate_chf['JPY'],
-        'AUD/JPY': rate_aud['JPY'],
-        'KRW/JPY': rate_krw['JPY'],
-        'CNY/JPY': rate_cny['JPY']
-        }
+    today_rates_jpy = {'USD': 0, 'EUR': 0, 'GBP': 0, 'CHF': 0, 'AUD': 0, 'KRW': 0, 'CNY': 0}
+    for k in today_rates_jpy.keys() :
+        today_rates_jpy[k] = obj.get_rates(k, today_stamp)['JPY']
+        # print(k + '/JPY : ' + str(today_rates_jpy[k]))
     return today_rates_jpy
 
 # 月と週のレート取得共通の関数
