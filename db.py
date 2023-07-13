@@ -27,4 +27,4 @@ with connection:
 
 # コネクション等は閉じる。
 # cur.close()
-# conn.close()
+# conn.close();

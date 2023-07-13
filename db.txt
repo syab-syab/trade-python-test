@@ -2,23 +2,28 @@
 
 テーブル : rate
 id :　変更なし
-currency_id : 通貨コード(文字列)
-              関連付けるかも
-rate : レート(数値)
-when_id(またはtag_id) : どの時点のレートか(today, yesterday, lastweek, とか数値ではなく文字列で)
-                        関連付けるのが良いかも
+base_currency_id : 基軸通貨コード(文字列)
+                    関連付けるかも
+payment_currency_id : 決済通貨コード(文字列)
+                      関連付けるかも
+rate_value : レート(数値か小数)
+period_id(またはtag_id) : どの時点のレートか(today, yesterday, lastweek, とか数値ではなく文字列で)
+                          関連付けるのが良いかも
 ※一応基準の通貨も(全部jpyだけど)
-(base_currency_id : ベースの通貨コードでcurrency_idと関連付けるテーブルは同じ)
 
-テーブル : currency_id
+
+テーブル : currency
 id : 特になし
 name : 通貨コードの文字列(USD, EURなど)
         JPYを入れるかどうか迷う
+※rateテーブルと関連付けるかも(不要ならこのテーブル自体作らない)
+※base_currencyとpayment_currencyで分ける必要があるかどうかわからない
 
-テーブル : when(またはtag)
+テーブル : rate_period
 id : 特になし
-name : todayやlastweek_average, lastmonth_averageなど
-        そのレートがいつのものかを表す
+period : todayやlastweek_average, lastmonth_averageなど
+          そのレートがいつのものかを表す
+※このテーブルも関連付ける必要がなければ作成しない
 
 
 
