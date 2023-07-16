@@ -192,4 +192,8 @@ print(weeks_test)
 months_test = last_months_rates(today_ut)
 print(months_test)
 
+# today_test, today_jpy_test, weeks_test, months_testに格納し終えてから
+# データベースへUPDATEする(レート取得をすべて済ませてから)
+
+
 # レートは小数点以下四桁までで四捨五入した方が良いかも
