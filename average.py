@@ -9,6 +9,10 @@ from calendar import isleap
 # USD(アメリカドル), EUR(ユーロ), GBP(イギリスポンド), CHF(スイスフラン)
 # AUD(オーストラリアドル), KRW(韓国ウォン), CNY(中国元)
 # 今後増やすかも
+# 追加するのは
+# IDR(インドネシア)、CAD(カナダ)、MYR(マレーシア)、SGD(シンガポール)、
+# HKD(香港)、NZD(ニュージーランド)、THB(タイ)、
+# NOK(ノルウェー)、INR(インド)、PHP(フィリピン)
 
 # JPY/USDの平均を算出する
 # 全関数共通の変数
@@ -24,7 +28,25 @@ today_ut = time.time()
 # 何となく他の関数と統一した方が万が一の混乱は避けられるかもしれないと思った
 def today_rate(uni) :
     today_stamp = datetime.fromtimestamp(uni)
-    today_rates = {'USD': 0, 'EUR': 0, 'GBP': 0, 'CHF': 0, 'AUD': 0, 'KRW': 0, 'CNY': 0}
+    today_rates = {
+        'USD': 0,
+        'EUR': 0,
+        'GBP': 0,
+        'CHF': 0,
+        'AUD': 0,
+        'KRW': 0,
+        'CNY': 0,
+        'IDR': 0,
+        'CAD': 0,
+        'MYR': 0,
+        'SGD': 0,
+        'HKD': 0,
+        'NZD': 0,
+        'THB': 0,
+        'NOK': 0,
+        'INR': 0,
+        'PHP': 0
+        }
     for k in today_rates.keys() :
         today_rates[k] = obj.get_rates(currency, today_stamp)[k]
         # print(k + ': ' + str(today_rates[k]))
@@ -33,7 +55,25 @@ def today_rate(uni) :
 # 〇〇〇 / JPYのレートを取得(今日の分のみ)
 def today_rate_jpy(uni) :
     today_stamp = datetime.fromtimestamp(uni)
-    today_rates_jpy = {'USD': 0, 'EUR': 0, 'GBP': 0, 'CHF': 0, 'AUD': 0, 'KRW': 0, 'CNY': 0}
+    today_rates_jpy = {
+        'USD': 0,
+        'EUR': 0,
+        'GBP': 0,
+        'CHF': 0,
+        'AUD': 0,
+        'KRW': 0,
+        'CNY': 0,
+        'IDR': 0,
+        'CAD': 0,
+        'MYR': 0,
+        'SGD': 0,
+        'HKD': 0,
+        'NZD': 0,
+        'THB': 0,
+        'NOK': 0,
+        'INR': 0,
+        'PHP': 0
+        }
     for k in today_rates_jpy.keys() :
         today_rates_jpy[k] = obj.get_rates(k, today_stamp)['JPY']
         # print(k + '/JPY : ' + str(today_rates_jpy[k]))
@@ -51,7 +91,17 @@ def fetch_rates(start_val, end_val, target_time) :
     'CHF': [],
     'AUD': [],
     'KRW': [],
-    'CNY': []
+    'CNY': [],
+    'IDR': [],
+    'CAD': [],
+    'MYR': [],
+    'SGD': [],
+    'HKD': [],
+    'NZD': [],
+    'THB': [],
+    'NOK': [],
+    'INR': [],
+    'PHP': []
     }
 
     # レートの取得
