@@ -4,6 +4,8 @@ from datetime import datetime
 import statistics
 from calendar import isleap
 
+# import psycopg2
+
 
 # 取得したいのは
 # USD(アメリカドル), EUR(ユーロ), GBP(イギリスポンド), CHF(スイスフラン)
@@ -197,3 +199,29 @@ print(months_test)
 
 
 # レートは小数点以下四桁までで四捨五入した方が良いかも
+# やっぱりやらなくていいかも
+
+# 下記はあくまで一例
+# connection = psycopg2.connect(
+#     dbname='unKnown',
+#     host='unKnown',
+#     user='unKnown',
+#     port=0000,
+#     password="unKnown"
+# )
+
+# sql = """
+#         INSERT INTO rate(base_code, payment_code, rate_val, rate_period)
+#         VALUEs ('JPY', 'USD', 0.0072050764, today)
+#     """ 
+
+# with connection:
+#     with connection.cursor() as cursor:
+#         sql = "INSERT INTO todo (task) VALUES ('hello')"
+#         cursor.execute(sql)
+#     connection.commit()
+
+def sql_write():
+    print()
+    # 引数に辞書型配列を格納できるように
+    # UPDATEでも代用が効くように
