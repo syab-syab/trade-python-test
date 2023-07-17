@@ -198,9 +198,6 @@ print(months_test)
 # データベースへUPDATEする(レート取得をすべて済ませてから)
 
 
-# レートは小数点以下四桁までで四捨五入した方が良いかも
-# やっぱりやらなくていいかも
-
 # 下記はあくまで一例
 # connection = psycopg2.connect(
 #     dbname='unKnown',
@@ -210,18 +207,29 @@ print(months_test)
 #     password="unKnown"
 # )
 
-# sql = """
-#         INSERT INTO rate(base_code, payment_code, rate_val, rate_period)
-#         VALUEs ('JPY', 'USD', 0.0072050764, today)
-#     """ 
-
+# [TODO]直接sql文を送る処理はややこしそうだから後で
 # with connection:
 #     with connection.cursor() as cursor:
 #         sql = "INSERT INTO todo (task) VALUES ('hello')"
 #         cursor.execute(sql)
 #     connection.commit()
 
-def sql_write():
-    print()
+def sql_write(base="JPY", period="today", rate_dic={}):
+    # paymentとrateは渡された辞書型配列のものを入れる
+    # payment="USD"
+    # rate=0.0072050764
+    
+    for k, v in rate_dic.items():
+        print(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_period) VALUES (\'{base}\', \'{k}\', {v}, \'{period}\')")
     # 引数に辞書型配列を格納できるように
     # UPDATEでも代用が効くように
+
+# [TODO]todayの○○/JPYのレートの文は後回し
+# todayの分
+sql_write(rate_dic=today_test);
+
+# last_weekの分
+sql_write(period="last_week", rate_dic=weeks_test)
+
+# last_monthの分
+sql_write(period="last_month", rate_dic=months_test)
