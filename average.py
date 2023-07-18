@@ -3,8 +3,7 @@ import time
 from datetime import datetime
 import statistics
 from calendar import isleap
-
-# import psycopg2
+import psycopg2
 
 
 # 取得したいのは
@@ -185,51 +184,68 @@ def last_months_rates(uni):
     return fetch_rates(0, number_of_days, last_months_first_day)
 
 
-today_test = today_rate(today_ut)
-print(today_test)
-today_jpy_test = today_rate_jpy(today_ut)
-print(today_jpy_test)
-weeks_test = last_weeks_rates(today_ut)
-print(weeks_test)
-months_test = last_months_rates(today_ut)
-print(months_test)
+# today_test = today_rate(today_ut)
+# print(today_test)
+# today_jpy_test = today_rate_jpy(today_ut)
+# print(today_jpy_test)
+# weeks_test = last_weeks_rates(today_ut)
+# print(weeks_test)
+# months_test = last_months_rates(today_ut)
+# print(months_test)
 
 # today_test, today_jpy_test, weeks_test, months_testに格納し終えてから
 # データベースへUPDATEする(レート取得をすべて済ませてから)
 
+# [TODO]○○/jpyの精度が低かったのでデータベースへの格納は一旦保留
+def sql_jpy_write(rate_dic={}):
+    for k, v in rate_dic.items():
+        print(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_period) VALUES (\'{k}\', 'JPY', {v}, 'today')")
+
+# sql_jpy_write(today_jpy_test)
 
 # 下記はあくまで一例
-# connection = psycopg2.connect(
-#     dbname='unKnown',
-#     host='unKnown',
-#     user='unKnown',
-#     port=0000,
-#     password="unKnown"
-# )
+connection = psycopg2.connect(
+    dbname='unKnown',
+    host='unKnown',
+    user='unKnown',
+    port=0000,
+    password="unKnown"
+)
 
-# [TODO]直接sql文を送る処理はややこしそうだから後で
-# with connection:
-#     with connection.cursor() as cursor:
-#         sql = "INSERT INTO todo (task) VALUES ('hello')"
-#         cursor.execute(sql)
-#     connection.commit()
+# 直接sql文を送る処理
+with connection:
+    with connection.cursor() as cursor:
 
-def sql_write(base="JPY", period="today", rate_dic={}):
-    # paymentとrateは渡された辞書型配列のものを入れる
-    # payment="USD"
-    # rate=0.0072050764
+        # ここに関数定義
+
+        def sql_write(base="JPY", period="today", rate_dic={}):
+
+        # paymentとrateは渡された辞書型配列のものを入れる
+        # payment="USD"
+        # rate=0.0072050764
     
-    for k, v in rate_dic.items():
-        print(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_period) VALUES (\'{base}\', \'{k}\', {v}, \'{period}\')")
-    # 引数に辞書型配列を格納できるように
-    # UPDATEでも代用が効くように
+            for k, v in rate_dic.items():
 
-# [TODO]todayの○○/JPYのレートの文は後回し
-# todayの分
-sql_write(rate_dic=today_test);
+                # [TODO]スケジューラーに上げるときはUPDATEに変更すること
 
-# last_weekの分
-sql_write(period="last_week", rate_dic=weeks_test)
+                cursor.execute(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_period) VALUES (\'{base}\', \'{k}\', {v}, \'{period}\')")
+            
+            # 引数に辞書型配列を格納できるように
+            # UPDATEでも代用が効くように
 
-# last_monthの分
-sql_write(period="last_month", rate_dic=months_test)
+        # sql = "INSERT INTO todo (task) VALUES ('hello')"
+        # cursor.execute(sql)
+
+        # sql_write(period="last_week", rate_dic=weeks_test)
+        # [TODO]todayの○○/JPYのレートの文は後回し
+        # todayの分
+        # sql_write(rate_dic=today_test);
+
+        # last_weekの分
+        # sql_write(period="last_week", rate_dic=weeks_test)
+
+        # last_monthの分
+        # sql_write(period="last_month", rate_dic=months_test)
+
+
+    connection.commit()

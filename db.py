@@ -10,16 +10,16 @@ import psycopg2
 # コネクション
 # conn = psycopg2.connect(dsn)  
 connection = psycopg2.connect(
-    dbname='postgres',
-    host='db.ncddhgoemdbghyzcmvmg.supabase.co',
-    user='postgres',
-    port=5432,
-    password='tset-esabatad-database-test'
+    dbname='unknown',
+    host='unknown',
+    user='unknown',
+    port=0000,
+    password='unknown'
 )
 
 with connection:
     with connection.cursor() as cursor:
-        sql = "INSERT INTO todos (task) VALUES ('hello')"
+        sql = "INSERT INTO todos (task) VALUES ('hello world')"
         cursor.execute(sql)
     connection.commit()
 
