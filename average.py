@@ -50,39 +50,39 @@ def today_rate(uni) :
         'INR': 0,
         'PHP': 0
         }
+    # わざわざfor文で回すのが無駄すぎた
+    origin_value = obj.get_rates(currency, today_stamp)
     for k in today_rates.keys() :
-        today_rates[k] = obj.get_rates(currency, today_stamp)[k]
+        today_rates[k] = origin_value[k]
         # print(k + ': ' + str(today_rates[k]))
     return today_rates
 
+# 保留
 # 〇〇〇 / JPYのレートを取得(今日の分のみ)
-def today_rate_jpy(uni) :
-    today_stamp = datetime.fromtimestamp(uni)
-    # [TODO]将来的に使えなくなるコードが出てくるかもしれないので(RUBのように)
-    # その際のエラー処理を書く
-    today_rates_jpy = {
-        'USD': 0,
-        'EUR': 0,
-        'GBP': 0,
-        'CHF': 0,
-        'AUD': 0,
-        'KRW': 0,
-        'CNY': 0,
-        'IDR': 0,
-        'CAD': 0,
-        'MYR': 0,
-        'SGD': 0,
-        'HKD': 0,
-        'NZD': 0,
-        'THB': 0,
-        'NOK': 0,
-        'INR': 0,
-        'PHP': 0
-        }
-    for k in today_rates_jpy.keys() :
-        today_rates_jpy[k] = obj.get_rates(k, today_stamp)['JPY']
-        # print(k + '/JPY : ' + str(today_rates_jpy[k]))
-    return today_rates_jpy
+# def today_rate_jpy(uni) :
+#     today_stamp = datetime.fromtimestamp(uni)
+#     today_rates_jpy = {
+#         'USD': 0,
+#         'EUR': 0,
+#         'GBP': 0,
+#         'CHF': 0,
+#         'AUD': 0,
+#         'KRW': 0,
+#         'CNY': 0,
+#         'IDR': 0,
+#         'CAD': 0,
+#         'MYR': 0,
+#         'SGD': 0,
+#         'HKD': 0,
+#         'NZD': 0,
+#         'THB': 0,
+#         'NOK': 0,
+#         'INR': 0,
+#         'PHP': 0
+#         }
+#     for k in today_rates_jpy.keys() :
+#         today_rates_jpy[k] = obj.get_rates(k, today_stamp)['JPY']
+#     return today_rates_jpy
 
 # 月と週のレート取得共通の関数
 # target_timeはunix時間
@@ -192,21 +192,19 @@ def last_months_rates(uni):
 
 
 today_test = today_rate(today_ut)
-print(today_test)
-# today_jpy_test = today_rate_jpy(today_ut)
-# print(today_jpy_test)
-# weeks_test = last_weeks_rates(today_ut)
+# print(today_test)
+weeks_test = last_weeks_rates(today_ut)
 # print(weeks_test)
-# months_test = last_months_rates(today_ut)
+months_test = last_months_rates(today_ut)
 # print(months_test)
 
 # today_test, today_jpy_test, weeks_test, months_testに格納し終えてから
 # データベースへUPDATEする(レート取得をすべて済ませてから)
 
 # [TODO]○○/jpyの精度が低かったのでデータベースへの格納は一旦保留
-def sql_jpy_write(rate_dic={}):
-    for k, v in rate_dic.items():
-        print(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_period) VALUES (\'{k}\', 'JPY', {v}, 'today')")
+# def sql_jpy_write(rate_dic={}):
+#     for k, v in rate_dic.items():
+#         print(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_period) VALUES (\'{k}\', 'JPY', {v}, 'today')")
 
 # sql_jpy_write(today_jpy_test)
 
@@ -252,10 +250,10 @@ with connection:
         sql_write(rate_dic=today_test);
 
         # last_weekの分
-        # sql_write(period="last_week", rate_dic=weeks_test)
+        sql_write(period="last_week", rate_dic=weeks_test)
 
         # last_monthの分
-        # sql_write(period="last_month", rate_dic=months_test)
+        sql_write(period="last_month", rate_dic=months_test)
 
 
     connection.commit()
