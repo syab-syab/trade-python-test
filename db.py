@@ -5,10 +5,8 @@ import psycopg2
 
 
 # 接続情報
-# dsn = "dbname=postgres host=db.ncddhgoemdbghyzcmvmg.supabase.co user=postgres port=5432 password=tset-esabatad-database-test"
 
 # コネクション
-# conn = psycopg2.connect(dsn)  
 connection = psycopg2.connect(
     dbname='unknown',
     host='unknown',

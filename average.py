@@ -29,6 +29,8 @@ today_ut = time.time()
 # 何となく他の関数と統一した方が万が一の混乱は避けられるかもしれないと思った
 def today_rate(uni) :
     today_stamp = datetime.fromtimestamp(uni)
+    # [TODO]将来的に使えなくなるコードが出てくるかもしれないので(RUBのように)
+    # その際のエラー処理を書く
     today_rates = {
         'USD': 0,
         'EUR': 0,
@@ -56,6 +58,8 @@ def today_rate(uni) :
 # 〇〇〇 / JPYのレートを取得(今日の分のみ)
 def today_rate_jpy(uni) :
     today_stamp = datetime.fromtimestamp(uni)
+    # [TODO]将来的に使えなくなるコードが出てくるかもしれないので(RUBのように)
+    # その際のエラー処理を書く
     today_rates_jpy = {
         'USD': 0,
         'EUR': 0,
@@ -85,6 +89,9 @@ def today_rate_jpy(uni) :
 def fetch_rates(start_val, end_val, target_time) :
 
     # 返すためのレートの辞書型配列を用意する
+    # [TODO]将来的に使えなくなるコードが出てくるかもしれないので(RUBのように)
+    # その際のエラー処理を書く
+
     ave_rates = {
     'USD': [],
     'EUR': [],
@@ -184,8 +191,8 @@ def last_months_rates(uni):
     return fetch_rates(0, number_of_days, last_months_first_day)
 
 
-# today_test = today_rate(today_ut)
-# print(today_test)
+today_test = today_rate(today_ut)
+print(today_test)
 # today_jpy_test = today_rate_jpy(today_ut)
 # print(today_jpy_test)
 # weeks_test = last_weeks_rates(today_ut)
@@ -227,8 +234,11 @@ with connection:
             for k, v in rate_dic.items():
 
                 # [TODO]スケジューラーに上げるときはUPDATEに変更すること
+                # SQL文の文字列はシングルクォートでなければエラーが出る
 
-                cursor.execute(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_period) VALUES (\'{base}\', \'{k}\', {v}, \'{period}\')")
+                # cursor.execute(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_period) VALUES (\'{base}\', \'{k}\', {v}, \'{period}\')")
+                cursor.execute(f"UPDATE rate SET rate_val={v} WHERE base_code=\'{base}\' AND payment_code=\'{k}\' AND rate_period=\'{period}\'")
+
             
             # 引数に辞書型配列を格納できるように
             # UPDATEでも代用が効くように
@@ -239,7 +249,7 @@ with connection:
         # sql_write(period="last_week", rate_dic=weeks_test)
         # [TODO]todayの○○/JPYのレートの文は後回し
         # todayの分
-        # sql_write(rate_dic=today_test);
+        sql_write(rate_dic=today_test);
 
         # last_weekの分
         # sql_write(period="last_week", rate_dic=weeks_test)

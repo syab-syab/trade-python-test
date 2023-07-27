@@ -7,3 +7,11 @@ https://ncddhgoemdbghyzcmvmg.supabase.co/
 rest/
 v1/
 todos?select=*&apikey=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZGRoZ29lbWRiZ2h5emNtdm1nIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzgwMDExODYsImV4cCI6MTk5MzU3NzE4Nn0.huab2sybTGI0QW79oeU2DAJDCA7aHpq6Laf-pUM1kfs
+
+
+https://mwbijuaheftllmpuwmtt.supabase.co/
+rest/
+v1/
+rate?select=*&apikey=[ANON_KEY]
+
+https://mwbijuaheftllmpuwmtt.supabase.co/rest/v1/rate?select=*&apikey=[ANON_KEY]
