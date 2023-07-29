@@ -24,11 +24,15 @@ obj = CurrencyRates()
 # まず今日のunix時間を取得
 today_ut = time.time()
 
+def format_ut(value):
+    return datetime.fromtimestamp(value)
+
 # 今日の分のレート
 # datetime型を引数にとっても良かったけど
 # 何となく他の関数と統一した方が万が一の混乱は避けられるかもしれないと思った
 def today_rate(uni) :
-    today_stamp = datetime.fromtimestamp(uni)
+    # today_stamp = datetime.fromtimestamp(uni)
+    today_stamp = format_ut(uni)
     # [TODO]将来的に使えなくなるコードが出てくるかもしれないので(RUBのように)
     # その際のエラー処理を書く
     today_rates = {
@@ -120,7 +124,8 @@ def fetch_rates(start_val, end_val, target_time) :
             tmp_date = target_time - (86400 * i)
         else :
             tmp_date = target_time + (86400 * i)
-        day_stamp = datetime.fromtimestamp(tmp_date)
+        # day_stamp = datetime.fromtimestamp(tmp_date)
+        day_stamp = format_ut(tmp_date)
         # day_rateに一日のレートがすべて入っている
         day_rate = obj.get_rates(currency, day_stamp)
         # 取得したレートをあらかじめ用意しておいた辞書型配列に
@@ -146,7 +151,8 @@ def last_weeks_rates(uni):
 
 # 先月分のレートの平均を算出する
 def last_months_rates(uni):
-    tmp = datetime.fromtimestamp(uni)
+    # tmp = datetime.fromtimestamp(uni)
+    tmp = format_ut(uni)
     [year, month, day] = tmp.strftime("%Y-%m-%d").split('-')
 
     # 取得する先月の日数
@@ -191,14 +197,16 @@ def last_months_rates(uni):
     return fetch_rates(0, number_of_days, last_months_first_day)
 
 
+# 今日の分のレートを格納
 today_test = today_rate(today_ut)
-# print(today_test)
-weeks_test = last_weeks_rates(today_ut)
-# print(weeks_test)
-months_test = last_months_rates(today_ut)
-# print(months_test)
 
-# today_test, today_jpy_test, weeks_test, months_testに格納し終えてから
+# 先週の分(平均)のレートを格納
+weeks_test = last_weeks_rates(today_ut)
+
+# 先月の分(平均)のレートを格納
+months_test = last_months_rates(today_ut)
+
+# 今日、先週、先月に格納し終えてから
 # データベースへUPDATEする(レート取得をすべて済ませてから)
 
 # [TODO]○○/jpyの精度が低かったのでデータベースへの格納は一旦保留
@@ -228,6 +236,12 @@ with connection:
         # paymentとrateは渡された辞書型配列のものを入れる
         # payment="USD"
         # rate=0.0072050764
+            [year, month, day] = format_ut(today_ut).strftime("%Y-%m-%d").split('-')
+            # [year, month, day] = datetime.fromtimestamp(today_ut).strftime("%Y-%m-%d").split('-')
+
+            updated_val = '-'.join([year, month, day])
+            # print(updated_val)
+            # print(type(updated_val))
     
             for k, v in rate_dic.items():
 
@@ -235,7 +249,8 @@ with connection:
                 # SQL文の文字列はシングルクォートでなければエラーが出る
 
                 # cursor.execute(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_period) VALUES (\'{base}\', \'{k}\', {v}, \'{period}\')")
-                cursor.execute(f"UPDATE rate SET rate_val={v} WHERE base_code=\'{base}\' AND payment_code=\'{k}\' AND rate_period=\'{period}\'")
+                # updatedにはシングルクォートを忘れないこと
+                cursor.execute(f"UPDATE rate SET rate_val={v}, updated=\'{updated_val}\' WHERE base_code=\'{base}\' AND payment_code=\'{k}\' AND rate_period=\'{period}\'")
 
             
             # 引数に辞書型配列を格納できるように
@@ -245,7 +260,6 @@ with connection:
         # cursor.execute(sql)
 
         # sql_write(period="last_week", rate_dic=weeks_test)
-        # [TODO]todayの○○/JPYのレートの文は後回し
         # todayの分
         sql_write(rate_dic=today_test);
 
