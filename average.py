@@ -30,12 +30,12 @@ def format_ut(value):
 # 今日の分のレート
 # datetime型を引数にとっても良かったけど
 # 何となく他の関数と統一した方が万が一の混乱は避けられるかもしれないと思った
-def today_rate(uni) :
+def one_day_rate(uni) :
     # today_stamp = datetime.fromtimestamp(uni)
-    today_stamp = format_ut(uni)
+    one_day_stamp = format_ut(uni)
     # [TODO]将来的に使えなくなるコードが出てくるかもしれないので(RUBのように)
     # その際のエラー処理を書く
-    today_rates = {
+    one_day_rates = {
         'USD': 0,
         'EUR': 0,
         'GBP': 0,
@@ -55,11 +55,11 @@ def today_rate(uni) :
         'PHP': 0
         }
     # わざわざfor文で回すのが無駄すぎた
-    origin_value = obj.get_rates(currency, today_stamp)
-    for k in today_rates.keys() :
-        today_rates[k] = origin_value[k]
+    origin_value = obj.get_rates(currency, one_day_stamp)
+    for k in one_day_rates.keys() :
+        one_day_rates[k] = origin_value[k]
         # print(k + ': ' + str(today_rates[k]))
-    return today_rates
+    return one_day_rates
 
 # 保留
 # 〇〇〇 / JPYのレートを取得(今日の分のみ)
@@ -90,7 +90,7 @@ def today_rate(uni) :
 
 # 月と週のレート取得共通の関数
 # target_timeはunix時間
-def fetch_rates(start_val, end_val, target_time) :
+def fetch_several_rates(start_val, end_val, target_time) :
 
     # 返すためのレートの辞書型配列を用意する
     # [TODO]将来的に使えなくなるコードが出てくるかもしれないので(RUBのように)
@@ -146,7 +146,7 @@ def fetch_rates(start_val, end_val, target_time) :
 def last_weeks_rates(uni):
     # rangeの仕様上終点を8に
     # 関数fetch_rateの返り値を返す
-    return fetch_rates(1, 8, uni)
+    return fetch_several_rates(1, 8, uni)
 
 
 # 先月分のレートの平均を算出する
@@ -194,11 +194,14 @@ def last_months_rates(uni):
     last_months_first_day = datetime(modified_year, modified_month, 1).timestamp()
 
     # 関数fetch_rateの返り値を返す
-    return fetch_rates(0, number_of_days, last_months_first_day)
+    return fetch_several_rates(0, number_of_days, last_months_first_day)
 
 
 # 今日の分のレートを格納
-today_test = today_rate(today_ut)
+today_test = one_day_rate(today_ut)
+
+# 昨日の分のレートを格納
+yesterday_test = one_day_rate(today_ut - 86400.00)
 
 # 先週の分(平均)のレートを格納
 weeks_test = last_weeks_rates(today_ut)
@@ -248,7 +251,8 @@ with connection:
                 # [TODO]スケジューラーに上げるときはUPDATEに変更すること
                 # SQL文の文字列はシングルクォートでなければエラーが出る
 
-                # cursor.execute(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_period) VALUES (\'{base}\', \'{k}\', {v}, \'{period}\')")
+                # [重要]yeasterdayの分が終わったらupdateの方をコメントアウトを解除する
+                # cursor.execute(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_period, updated) VALUES (\'{base}\', \'{k}\', {v}, \'{period}\', \'{updated_val}\')")
                 # updatedにはシングルクォートを忘れないこと
                 cursor.execute(f"UPDATE rate SET rate_val={v}, updated=\'{updated_val}\' WHERE base_code=\'{base}\' AND payment_code=\'{k}\' AND rate_period=\'{period}\'")
 
@@ -262,6 +266,9 @@ with connection:
         # sql_write(period="last_week", rate_dic=weeks_test)
         # todayの分
         sql_write(rate_dic=today_test);
+
+        # yesterdayの分
+        sql_write(period="yesterday", rate_dic=yesterday_test)
 
         # last_weekの分
         sql_write(period="last_week", rate_dic=weeks_test)

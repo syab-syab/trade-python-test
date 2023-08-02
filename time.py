@@ -17,10 +17,9 @@ ut = time.time()
 date_test = datetime.fromtimestamp(ut - 86400.00)
 
 print(date_test)
+print("test")
 
-# [year, month, day] = datetime(2023, 10, 3).strftime("%Y-%m-%d").split('-')
-[year, month, day] = datetime.fromtimestamp(ut).strftime("%Y-%m-%d")
-# ymd_tmp = datetime.fromtimestamp(ut).strftime("%Y-%m-%d").split('-')
+[year, month, day] = datetime.fromtimestamp(ut).strftime("%Y-%m-%d").split('-')
 
 test_month = '-'.join([year, month, day])
 print(type(test_month))
