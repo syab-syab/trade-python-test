@@ -2,8 +2,13 @@ import time
 from datetime import datetime
 from calendar import isleap
 
+
+
+
+
+
 # unix時間からdatetimeを算出
-ut = time.time()
+# ut = time.time()
 
 # print(ut)
 
@@ -14,16 +19,16 @@ ut = time.time()
 
 # 24時間 = 86400秒
 # 算出したunix時間に足したり引いたりすれば～日後・前を表せる
-date_test = datetime.fromtimestamp(ut - 86400.00)
+# date_test = datetime.fromtimestamp(ut - 86400.00)
 
-print(date_test)
-print("test")
+# print(date_test)
+# print("test")
 
-[year, month, day] = datetime.fromtimestamp(ut).strftime("%Y-%m-%d").split('-')
+# [year, month, day] = datetime.fromtimestamp(ut).strftime("%Y-%m-%d").split('-')
 
-test_month = '-'.join([year, month, day])
-print(type(test_month))
-print(test_month)
+# test_month = '-'.join([year, month, day])
+# print(type(test_month))
+# print(test_month)
 
 # def urudoshi(years):
 #     result = isleap(years)

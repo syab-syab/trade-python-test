@@ -225,7 +225,7 @@ connection = psycopg2.connect(
     host='unKnown',
     user='unKnown',
     port=0000,
-    password="unKnown"
+    password="unKnown",
 )
 
 # 直接sql文を送る処理
