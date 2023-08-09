@@ -19,7 +19,7 @@ def dateToString(date):
 # print(dateToString(date_yesterday))
 
 
-# url = 'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=AW5GBJKBXYGBTST3'
+# url = 'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=[XXXXXXXX]'
 # r = requests.get(url)
 # data = r.json()
 
@@ -34,7 +34,7 @@ def dateToString(date):
 # 全関数共通の変数
 # currency = 'JPY'
 
-api_key = 'AW5GBJKBXYGBTST3'
+api_key = 'XXXXXX'
 
 # 一日分のレート
 # datetime型を引数にとっても良かったけど
