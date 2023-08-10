@@ -3,6 +3,13 @@ from datetime import datetime
 import time
 import psycopg2
 
+# [TODO] {"USD": {"today": XXX, "yesterday": XXX, "last-week": XXX, "last-month": XXX}}
+#           という感じの辞書配列にした方がこのAPIに合っている気がする
+#           指定したレートが一年分くらい一度に表示されるから
+#           その方がアクセス数を減らすことができる
+#           あと、requestsにタイムアウトの時間を指定したりエラー処理を書いたりしてAPIにアクセスできなかった時の対策をする
+
+
 # unix時間からdatetimeを算出
 today_ut = time.time()
 
@@ -61,8 +68,10 @@ def one_day_rate(date, key) :
         }
     for k in payment_code.keys() :
         url = 'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol={}&apikey={}'.format(k, key)
+        # ----- エラー頻発するのでエラー処理を書く ---------
         rq = requests.get(url)
         data = rq.json()
+        #  ------ エラー頻発するのでエラー処理を書く・end ---------
         # floatにすると格納されなくてエラーが出る
         # payment_code[k] = float(data['Time Series FX (Daily)'][date]['4. close'])
         payment_code[k] = data['Time Series FX (Daily)'][date]['4. close']
@@ -103,18 +112,13 @@ today_jpy_XXX_rate = one_day_rate(dateToString(date_today), api_key)
 #     return base_code
 
 
-# 下記はあくまで一例
+# supabaseへの書き込み
 connection = psycopg2.connect(
-    # dbname='unKnown',
-    # host='unKnown',
-    # user='unKnown',
-    # port=0000,
-    # password="unKnown",
-    dbname='postgres',
-    host='db.mwbijuaheftllmpuwmtt.supabase.co',
-    user='postgres',
-    port=5432,
-    password="0hXrktyaBb74IURE"
+    dbname='unKnown',
+    host='unKnown',
+    user='unKnown',
+    port=0000,
+    password="unKnown",
 )
 
 # 直接sql文を送る処理
