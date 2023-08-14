@@ -1,0 +1,5 @@
+# Function dependencies, for example:
+# package>=version
+
+forex-python==1.8
+psycopg2==2.9.6

@@ -1,0 +1,10 @@
+trade-rate
+
+id: int
+base_code: string
+payment_code: string
+rate_val: float
+updated: text
+
+↓廃止予定
+rate_period: text

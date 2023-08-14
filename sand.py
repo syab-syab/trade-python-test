@@ -2,12 +2,10 @@ import requests
 from datetime import datetime
 import time
 import psycopg2
+from supabase import Client, create_client
 
-# [TODO] {"USD": {"today": XXX, "yesterday": XXX, "last-week": XXX, "last-month": XXX}}
-#           という感じの辞書配列にした方がこのAPIに合っている気がする
-#           指定したレートが一年分くらい一度に表示されるから
-#           その方がアクセス数を減らすことができる
-#           あと、requestsにタイムアウトの時間を指定したりエラー処理を書いたりしてAPIにアクセスできなかった時の対策をする
+# 日ごとのapiから取ってきた値をそのままぶち込む
+# あと用途を限定させたいから少なくとも現時点では JPY / XXX だけ
 
 
 # unix時間からdatetimeを算出
@@ -32,8 +30,6 @@ def dateToString(date):
 
 # print(float(data["Time Series FX (Daily)"][dateToString(date_today)]["4. close"]))
 
-# 'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=[XXX]&apikey=[XXXXXXXXXXX]' * 17
-# 'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=[XXX]&to_symbol=JPY&apikey=[XXXXXXXXXXX]' * 17
 # ["Time Series FX (Daily)"]
 # timezone = UTC
 
@@ -43,122 +39,93 @@ def dateToString(date):
 
 api_key = 'XXXXXX'
 
+# USD AUD CNY CAD THB 
+
 # 一日分のレート
 # datetime型を引数にとっても良かったけど
 # 何となく他の関数と統一した方が万が一の混乱は避けられるかもしれないと思った
-def one_day_rate(date, key) :
+def today_rate(key) :
     payment_code = {
-        'USD': 0,
-        'EUR': 0,
-        'GBP': 0,
-        'CHF': 0,
-        'AUD': 0,
-        'KRW': 0,
-        'CNY': 0,
-        'IDR': 0,
-        'CAD': 0,
-        'MYR': 0,
-        'SGD': 0,
-        'HKD': 0,
-        'NZD': 0,
-        'THB': 0,
-        'NOK': 0,
-        'INR': 0,
-        'PHP': 0
+        'USD': [],
+        # 'EUR': [],
+        # 'GBP': [],
+        # 'CHF': [],
+        'AUD': [],
+        # 'KRW': [],
+        'CNY': [],
+        # 'IDR': [],
+        'CAD': [],
+        # 'MYR': [],
+        # 'SGD': [],
+        # 'HKD': [],
+        # 'NZD': [],
+        'THB': [],
+        # 'NOK': [],
+        # 'INR': [],
+        # 'PHP': []
         }
     for k in payment_code.keys() :
         url = 'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol={}&apikey={}'.format(k, key)
-        # ----- エラー頻発するのでエラー処理を書く ---------
         rq = requests.get(url)
-        data = rq.json()
-        #  ------ エラー頻発するのでエラー処理を書く・end ---------
+        tmp = rq.json()
+        data = tmp['Time Series FX (Daily)']
         # floatにすると格納されなくてエラーが出る
-        # payment_code[k] = float(data['Time Series FX (Daily)'][date]['4. close'])
-        payment_code[k] = data['Time Series FX (Daily)'][date]['4. close']
-        # print(k)
-        time.sleep(10)
+        # 日付と各日の終値を配列にした後join()で文字列にする
+        date_arr = []
+        day_rates = []
+        for sk in data.keys() :
+            date_arr.append(sk)
+            day_rates.append(data[sk]['4. close'])
+        payment_code[k].append(",".join(date_arr))
+        payment_code[k].append(",".join(day_rates))
+        time.sleep(5)
+    # print(payment_code['USD'][0])
+    # print(payment_code['USD'][1])
     return payment_code
+
 
 # Time Series FX (Daily)
 
-today_jpy_XXX_rate = one_day_rate(dateToString(date_today), api_key)
+# today_rate(api_key)
+jpy_otr_rate = today_rate(api_key)
+print(jpy_otr_rate)
 
-# 〇〇〇 / JPYのレートを取得(今日の分のみ)
-# def today_rate_jpy(date, key) :
-#     base_code = {
-#         'USD': 0,
-#         'EUR': 0,
-#         'GBP': 0,
-#         'CHF': 0,
-#         'AUD': 0,
-#         'KRW': 0,
-#         'CNY': 0,
-#         'IDR': 0,
-#         'CAD': 0,
-#         'MYR': 0,
-#         'SGD': 0,
-#         'HKD': 0,
-#         'NZD': 0,
-#         'THB': 0,
-#         'NOK': 0,
-#         'INR': 0,
-#         'PHP': 0
-#         }
-#     for k in base_code.keys() :
-#         url = 'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol={}&to_symbol=JPY&apikey={}'.format(k, key)
-#         rq = requests.get(url)
-#         data = rq.json()
-#         base_code[k] = float(data["Time Series FX (Daily)"][date[0]]["4. close"])
-#     return base_code
+# supabaseのライブラリを使った書き込み
+
+# supa_url = "db.mwbijuaheftllmpuwmtt.supabase.co"
+# supa_key = "0hXrktyaBb74IURE"
+# supabase: Client = create_client(supa_url, supa_key)
+# supabase.table("rate").insert({"base_code": "JPY", "payment_code": "XXX", "rate_val": 000, "updated": "XXXX-XX-XX" }).execute()
 
 
 # supabaseへの書き込み
 connection = psycopg2.connect(
-    dbname='unKnown',
-    host='unKnown',
-    user='unKnown',
-    port=0000,
-    password="unKnown",
+    # dbname='unKnown',
+    # host='unKnown',
+    # user='unKnown',
+    # port=0000,
+    # password="unKnown",
+    dbname='postgres',
+    host='db.mwbijuaheftllmpuwmtt.supabase.co',
+    user='postgres',
+    port=5432,
+    password="0hXrktyaBb74IURE"
 )
 
 # 直接sql文を送る処理
 with connection:
     with connection.cursor() as cursor:
-
-        # ここに関数定義
-
-        def sql_write(base="JPY", period="today", rate_dic={}):
-
-        # paymentとrateは渡された辞書型配列のものを入れる
-        # payment="USD"
-        # rate=0.0072050764
+        def sql_write(base="JPY", rate_dic={}):
             [year, month, day] = datetime.fromtimestamp(today_ut).strftime("%Y-%m-%d").split('-')
-            # [year, month, day] = datetime.fromtimestamp(today_ut).strftime("%Y-%m-%d").split('-')
-
             updated_val = '-'.join([year, month, day])
-
-    
             for k, v in rate_dic.items():
 
-                # [TODO]スケジューラーに上げるときはUPDATEに変更すること
-                # SQL文の文字列はシングルクォートでなければエラーが出る
-                convert_v = float(v)
-
-                # [重要]yeasterdayの分が終わったらupdateの方をコメントアウトを解除する
-                # cursor.execute(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_period, updated) VALUES (\'{base}\', \'{k}\', {v}, \'{period}\', \'{updated_val}\')")
-                # updatedにはシングルクォートを忘れないこと
-                cursor.execute(f"UPDATE rate SET rate_val={v}, updated=\'{updated_val}\' WHERE base_code=\'{base}\' AND payment_code=\'{k}\' AND rate_period=\'{period}\'")
-
+                # /updatedにはシングルクォートを忘れないこと
+                # v[0], v[1]
+                cursor.execute(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_dates, updated) VALUES (\'{base}\', \'{k}\', \'{v[0]}\', \'{v[1]}\', \'{updated_val}\')")
+                # cursor.execute(f"UPDATE rate SET rate_val={v}, updated=\'{updated_val}\' WHERE base_code=\'{base}\' AND payment_code=\'{k}\'")
             
-            # 引数に辞書型配列を格納できるように
-            # UPDATEでも代用が効くように
-
-        # sql = "INSERT INTO todo (task) VALUES ('hello')"
-        # cursor.execute(sql)
-
-        # sql_write(period="last_week", rate_dic=weeks_test)
         # todayの分
-        sql_write(rate_dic=today_jpy_XXX_rate);
-
+        sql_write(rate_dic=jpy_otr_rate)
 
     connection.commit()
