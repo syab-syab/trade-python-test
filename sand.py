@@ -37,7 +37,7 @@ def dateToString(date):
 # 全関数共通の変数
 # currency = 'JPY'
 
-api_key = 'XXXXXX'
+api_key = 'XXX'
 
 # USD AUD CNY CAD THB 
 
@@ -100,16 +100,11 @@ print(jpy_otr_rate)
 
 # supabaseへの書き込み
 connection = psycopg2.connect(
-    # dbname='unKnown',
-    # host='unKnown',
-    # user='unKnown',
-    # port=0000,
-    # password="unKnown",
-    dbname='postgres',
-    host='db.mwbijuaheftllmpuwmtt.supabase.co',
-    user='postgres',
-    port=5432,
-    password="0hXrktyaBb74IURE"
+    dbname='unKnown',
+    host='unKnown',
+    user='unKnown',
+    port=0000,
+    password="unKnown",
 )
 
 # 直接sql文を送る処理
@@ -122,8 +117,8 @@ with connection:
 
                 # /updatedにはシングルクォートを忘れないこと
                 # v[0], v[1]
-                cursor.execute(f"INSERT INTO rate(base_code, payment_code, rate_val, rate_dates, updated) VALUES (\'{base}\', \'{k}\', \'{v[0]}\', \'{v[1]}\', \'{updated_val}\')")
-                # cursor.execute(f"UPDATE rate SET rate_val={v}, updated=\'{updated_val}\' WHERE base_code=\'{base}\' AND payment_code=\'{k}\'")
+                # cursor.execute(f"INSERT INTO rate(base_code, payment_code, rate_dates, rate_val, updated) VALUES (\'{base}\', \'{k}\', \'{v[0]}\', \'{v[1]}\', \'{updated_val}\')")
+                cursor.execute(f"UPDATE rate SET rate_dates={v[0]} ,rate_val={v[1]}, updated=\'{updated_val}\' WHERE base_code=\'{base}\' AND payment_code=\'{k}\'")
             
         # todayの分
         sql_write(rate_dic=jpy_otr_rate)
