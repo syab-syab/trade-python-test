@@ -20,46 +20,34 @@ def dateToString(date):
     str_date = date.strftime("%Y-%m-%d").split(' ')
     return str_date[0]
 
-# print(dateToString(date_today))
-# print(dateToString(date_yesterday))
-
-
-# url = 'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol=USD&apikey=[XXXXXXXX]'
-# r = requests.get(url)
-# data = r.json()
-
-# print(float(data["Time Series FX (Daily)"][dateToString(date_today)]["4. close"]))
-
-# ["Time Series FX (Daily)"]
-# timezone = UTC
-
-# JPY/USDの平均を算出する
-# 全関数共通の変数
-# currency = 'JPY'
 
 api_key = 'XXX'
 
-# USD AUD CNY CAD THB 
-
 # 一日分のレート
-# datetime型を引数にとっても良かったけど
-# 何となく他の関数と統一した方が万が一の混乱は避けられるかもしれないと思った
+# スケジューラで17個全部回したい(一度に5つのコードまで)要検証
+# 優先順位は↓の通り
+# USD AUD CNY CAD THB
+# EUR GBP CHF KRW IDR
+# MYR SGD HKD NZD NOK
+# INR PHP
+# PHPは値が二つしか取れない(?)
+
 def today_rate(key) :
     payment_code = {
         'USD': [],
+        'AUD': [],
+        'CNY': [],
+        'CAD': [],
+        'THB': [],
         # 'EUR': [],
         # 'GBP': [],
         # 'CHF': [],
-        'AUD': [],
         # 'KRW': [],
-        'CNY': [],
         # 'IDR': [],
-        'CAD': [],
         # 'MYR': [],
         # 'SGD': [],
         # 'HKD': [],
         # 'NZD': [],
-        'THB': [],
         # 'NOK': [],
         # 'INR': [],
         # 'PHP': []
@@ -68,6 +56,7 @@ def today_rate(key) :
         url = 'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol={}&apikey={}'.format(k, key)
         rq = requests.get(url)
         tmp = rq.json()
+        print(tmp)
         data = tmp['Time Series FX (Daily)']
         # floatにすると格納されなくてエラーが出る
         # 日付と各日の終値を配列にした後join()で文字列にする
@@ -88,7 +77,7 @@ def today_rate(key) :
 
 # today_rate(api_key)
 jpy_otr_rate = today_rate(api_key)
-print(jpy_otr_rate)
+# print(jpy_otr_rate)
 
 # supabaseのライブラリを使った書き込み
 
@@ -118,7 +107,7 @@ with connection:
                 # /updatedにはシングルクォートを忘れないこと
                 # v[0], v[1]
                 # cursor.execute(f"INSERT INTO rate(base_code, payment_code, rate_dates, rate_val, updated) VALUES (\'{base}\', \'{k}\', \'{v[0]}\', \'{v[1]}\', \'{updated_val}\')")
-                cursor.execute(f"UPDATE rate SET rate_dates={v[0]} ,rate_val={v[1]}, updated=\'{updated_val}\' WHERE base_code=\'{base}\' AND payment_code=\'{k}\'")
+                cursor.execute(f"UPDATE rate SET rate_dates=\'{v[0]}\' ,rate_val=\'{v[1]}\', updated=\'{updated_val}\' WHERE base_code=\'{base}\' AND payment_code=\'{k}\'")
             
         # todayの分
         sql_write(rate_dic=jpy_otr_rate)
