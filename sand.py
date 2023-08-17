@@ -34,11 +34,11 @@ api_key = 'XXX'
 
 def today_rate(key) :
     payment_code = {
-        'USD': [],
-        'AUD': [],
-        'CNY': [],
-        'CAD': [],
-        'THB': [],
+        # 'USD': [],
+        # 'AUD': [],
+        # 'CNY': [],
+        # 'CAD': [],
+        # 'THB': [],
         # 'EUR': [],
         # 'GBP': [],
         # 'CHF': [],
@@ -47,7 +47,9 @@ def today_rate(key) :
         # 'MYR': [],
         # 'SGD': [],
         # 'HKD': [],
-        # 'NZD': [],
+
+        'TWD': [],
+
         # 'NOK': [],
         # 'INR': [],
         # 'PHP': []
