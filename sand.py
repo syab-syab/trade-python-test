@@ -2,7 +2,6 @@ import requests
 from datetime import datetime
 import time
 import psycopg2
-from supabase import Client, create_client
 
 # 日ごとのapiから取ってきた値をそのままぶち込む
 # あと用途を限定させたいから少なくとも現時点では JPY / XXX だけ
@@ -34,25 +33,23 @@ api_key = 'XXX'
 
 def today_rate(key) :
     payment_code = {
-        # 'USD': [],
-        # 'AUD': [],
-        # 'CNY': [],
-        # 'CAD': [],
-        # 'THB': [],
+        'USD': [],
+        'AUD': [],
+        'CAD': [],
+        'TWD': [],
+        'CNY': [],
+
         # 'EUR': [],
         # 'GBP': [],
         # 'CHF': [],
-        # 'KRW': [],
-        # 'IDR': [],
-        # 'MYR': [],
+        # 'THB': [],
         # 'SGD': [],
-        # 'HKD': [],
 
-        'TWD': [],
-
+        # 'MYR': [],
         # 'NOK': [],
         # 'INR': [],
-        # 'PHP': []
+        # 'PHP': [],
+        # 'KRW': [],
         }
     for k in payment_code.keys() :
         url = 'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol={}&apikey={}'.format(k, key)
@@ -60,7 +57,6 @@ def today_rate(key) :
         tmp = rq.json()
         print(tmp)
         data = tmp['Time Series FX (Daily)']
-        # floatにすると格納されなくてエラーが出る
         # 日付と各日の終値を配列にした後join()で文字列にする
         date_arr = []
         day_rates = []
@@ -81,13 +77,6 @@ def today_rate(key) :
 jpy_otr_rate = today_rate(api_key)
 # print(jpy_otr_rate)
 
-# supabaseのライブラリを使った書き込み
-
-# supa_url = "db.mwbijuaheftllmpuwmtt.supabase.co"
-# supa_key = "0hXrktyaBb74IURE"
-# supabase: Client = create_client(supa_url, supa_key)
-# supabase.table("rate").insert({"base_code": "JPY", "payment_code": "XXX", "rate_val": 000, "updated": "XXXX-XX-XX" }).execute()
-
 
 # supabaseへの書き込み
 connection = psycopg2.connect(
@@ -96,6 +85,7 @@ connection = psycopg2.connect(
     user='unKnown',
     port=0000,
     password="unKnown",
+
 )
 
 # 直接sql文を送る処理
