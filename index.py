@@ -1,57 +1,108 @@
-from forex_python.converter import CurrencyRates
+import requests
 from datetime import datetime
+import time
+import psycopg2
 
-# 取得するのは現在、昨日、先週(週の頭からケツまでの平均)、先月(月の頭からケツまでの平均)、一年前(1/1～12/31の平均)(場合によっては三、五、十年前も)
-# 年単位のレートはあらかじめデータベースに手動で入れておいた方が楽
-
-# datetimeで取った日付よりもunix時間の数値の方がいいかもしれない
-# どちらをつかうにせよ 年月日時分の5つの数値が取得できればいい
-# datetime型で想定すると 型をstringに直して分解して配列にする → それぞれ対応した変数へ格納する
-# うるう年は2月29日がある
-# 30日なのは4，6，9，11の月 
-# 31日なのは1，3，5，7，8，10，12の月 
-# 28日(うるう年は29日)なのは2月
-
-# 日時を指定しなければ0時0分になる
-# date_test = datetime(2020, 5, 4)
-# print(date_test)
+# 日ごとのapiから取ってきた値をそのままぶち込む
+# あと用途を限定させたいから少なくとも現時点では JPY / XXX だけ
 
 
-# 通貨（日本円の場合: JPYと指定）
-currency = 'JPY'
+# unix時間からdatetimeを算出
+today_ut = time.time()
 
-currencysec = 'USD'
-
-# 実行
-obj = CurrencyRates()
-# 年月日を指定しなければ現在のレートを取得
-values = obj.get_rates(currency)
-print(values)
+date_today = datetime.fromtimestamp(today_ut)
+date_yesterday = datetime.fromtimestamp(today_ut - 86400.00)
 
 
+def dateToString(date):
+    # datetime型から文字列に変換 → 年月日と時間に分割
+    str_date = date.strftime("%Y-%m-%d").split(' ')
+    return str_date[0]
 
-# 今日の日付
-date_today = datetime.today()
-today_str_type = date_today.strftime("%Y-%m-%d").split('-')
-# datetime型から文字列に変換 → 年月日に分割
-[year, month, day] = today_str_type
+api_key = 'XXXX'
 
-# 各年月日よりも1少ない日付からレートを取ってみる
-past_date = datetime(int(year) - 1, int(month) - 1, int(day) - 1)
+# 一日分のレート
+# スケジューラで17個全部回したい(一度に5つのコードまで)要検証
+# 優先順位は↓の通り
+# USD AUD CNY CAD THB
+# EUR GBP CHF KRW IDR
+# MYR SGD HKD NZD NOK
+# INR PHP
+# PHPは値が二つしか取れない(?)
 
-# 取得したいのは USD(アメリカドル) EUR(ユーロ) GBP(イギリスポンド) CHF(スイスフラン) AUD(オーストラリアドル) KRW(韓国ウォン) CNY(中国元)
+def today_rate(key) :
+    # データベースに別のテーブルを作って値を管理させる
+    # 返ってきた値によってupdateする通貨のグループを分ける
+    # テーブル名はstate
+    payment_code = {
+        'USD': [],
+        'AUD': [],
+        'CAD': [],
+        'TWD': [],
+        'CNY': [],
 
-past_rate = obj.get_rates(currency, past_date)
-# 帰ってくるのは辞書型だからキーを指定(取り出す際に指定した方が良いかも)
-# いちいち取り出すのが面倒なので後で関数を作る
-my_past_rate = {
-    'USD': past_rate['USD'],
-    'EUR': past_rate['EUR'],
-    'GBP': past_rate['GBP'],
-    'CHF': past_rate['CHF'],
-    'AUD': past_rate['AUD'],
-    'KRW': past_rate['KRW'],
-    'CNY': past_rate['CNY']
-    }
+        # 'EUR': [],
+        # 'GBP': [],
+        # 'CHF': [],
+        # 'THB': [],
+        # 'SGD': [],
 
-print(my_past_rate)
+        # 'MYR': [],
+        # 'NOK': [],
+        # 'INR': [],
+        # 'PHP': [],
+        # 'KRW': [],
+        }
+    for k in payment_code.keys() :
+        url = 'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol={}&apikey={}'.format(k, key)
+        rq = requests.get(url)
+        tmp = rq.json()
+        # print(tmp)
+        data = tmp['Time Series FX (Daily)']
+        # 日付と各日の終値を配列にした後join()で文字列にする
+        date_arr = []
+        day_rates = []
+        for sk in data.keys() :
+            date_arr.append(sk)
+            day_rates.append(data[sk]['4. close'])
+        payment_code[k].append(",".join(date_arr))
+        payment_code[k].append(",".join(day_rates))
+        # time.sleep(5)
+    # print(payment_code['USD'][0])
+    # print(payment_code['USD'][1])
+    return payment_code
+
+
+# Time Series FX (Daily)
+
+# today_rate(api_key)
+jpy_otr_rate = today_rate(api_key)
+# print(jpy_otr_rate)
+
+
+# supabaseへの書き込み
+connection = psycopg2.connect(
+    dbname='unKnown',
+    host='unKnown',
+    user='unKnown',
+    port=0000,
+    password="unKnown",
+)
+
+# 直接sql文を送る処理
+with connection:
+    with connection.cursor() as cursor:
+        def sql_write(base="JPY", rate_dic={}):
+            [year, month, day] = datetime.fromtimestamp(today_ut).strftime("%Y-%m-%d").split('-')
+            updated_val = '-'.join([year, month, day])
+            for k, v in rate_dic.items():
+
+                # /updatedにはシングルクォートを忘れないこと
+                # v[0], v[1]
+                # cursor.execute(f"INSERT INTO rate(base_code, payment_code, rate_dates, rate_val, updated) VALUES (\'{base}\', \'{k}\', \'{v[0]}\', \'{v[1]}\', \'{updated_val}\')")
+                cursor.execute(f"UPDATE rate SET rate_dates=\'{v[0]}\' ,rate_val=\'{v[1]}\', updated=\'{updated_val}\' WHERE base_code=\'{base}\' AND payment_code=\'{k}\'")
+            
+        # todayの分
+        sql_write(rate_dic=jpy_otr_rate)
+
+    connection.commit()
