@@ -71,8 +71,7 @@ def today_rate(key) :
         payment_code[k].append(",".join(date_arr))
         payment_code[k].append(",".join(day_rates))
         # time.sleep(5)
-    # print(payment_code['USD'][0])
-    # print(payment_code['USD'][1])
+
     return payment_code
 
 
