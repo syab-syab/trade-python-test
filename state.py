@@ -1,26 +1,34 @@
 import psycopg2
 
 
-# stateテーブルの更新テスト
-connection = psycopg2.connect(
-    # dbname='unKnown',
-    # host='unKnown',
-    # user='unKnown',
-    # port=0000,
-    # password="unKnown",
-    dbname='postgres',
-    host='db.mwbijuaheftllmpuwmtt.supabase.co',
-    user='postgres',
-    port=5432,
-    password="0hXrktyaBb74IURE"
 
-)
 
-with connection:
-    with connection.cursor() as cursor:
-        sql = "INSERT INTO state(state, tag) VALUES ('1', 'state management')"
-        # ↑をupdate文にする
-        cursor.execute(sql)
-        # selectで取得した値をprintする
-        # cursor.execute(sql)
-    connection.commit()
+def test():
+    # stateテーブルの更新テスト
+    connection = psycopg2.connect(
+        dbname='unKnown',
+        host='unKnown',
+        user='unKnown',
+        port=0000,
+        password="unKnown",
+
+    )
+
+    # 関数でwith文を囲っても大丈夫っぽい
+    with connection:
+        with connection.cursor() as cursor:
+            # sql = "INSERT INTO state(state, tag) VALUES ('1', 'state management')"
+            update ="UPDATE state SET state = '1' WHERE id = 1"
+            # ↑をupdate文にする
+            # cursor.execute(sql)
+            cursor.execute(update)
+            # selectで取得した値をprintする
+            select = "SELECT state FROM state WHERE id = 1"
+            cursor.execute(select)
+            row = cursor.fetchone()
+            print(row[0])
+            print(row[0] == '1')
+            # cursor.execute(sql)
+        connection.commit()
+
+test()
