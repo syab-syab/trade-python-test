@@ -22,14 +22,14 @@ def update_rates():
             select = "SELECT state FROM state WHERE id = 1"
             cursor.execute(select)
             state = cursor.fetchone()
-            print(state[0])
-            print(state[0] == '1')
+            # print(state[0])
+            # print(state[0] == '1')
 
             # unix時間からdatetimeを算出
             today_ut = time.time()
             
             # apiのキーを忘れずに
-            api_key = 'XXXX'
+            api_key = 'XXX'
 
             # stateテーブルの値で返す辞書型の内容を変更する
             def create_payment_code(state):
@@ -42,10 +42,11 @@ def update_rates():
                 else:
                     return { 'USD': [], 'AUD': [], 'CAD': [], 'TWD': [], 'CNY': [] }
 
-            def today_rate(key, state) :
+            def today_rate(key, state):
                 payment_code = create_payment_code(state)
+                print(payment_code)
 
-                for k in payment_code.keys() :
+                for k in payment_code.keys():
                     url = 'https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=JPY&to_symbol={}&apikey={}'.format(k, key)
                     rq = requests.get(url)
                     tmp = rq.json()
@@ -61,9 +62,11 @@ def update_rates():
                     payment_code[k].append(",".join(day_rates))
                     # time.sleep(5)
 
-                    return payment_code
+                return payment_code
                 
             jpy_otr_rate = today_rate(api_key, state[0])
+
+            # print(jpy_otr_rate)
 
             def sql_write(base="JPY", rate_dic={}):
                 [year, month, day] = datetime.fromtimestamp(today_ut).strftime("%Y-%m-%d").split('-')
@@ -71,6 +74,7 @@ def update_rates():
                 for k, v in rate_dic.items():
                     # /updatedにはシングルクォートを忘れないこと
                     # v[0], v[1]
+                    # print(f"UPDATE rate SET rate_dates=\'{v[0]}\' ,rate_val=\'{v[1]}\', updated=\'{updated_val}\' WHERE base_code=\'{base}\' AND payment_code=\'{k}\'")
                     cursor.execute(f"UPDATE rate SET rate_dates=\'{v[0]}\' ,rate_val=\'{v[1]}\', updated=\'{updated_val}\' WHERE base_code=\'{base}\' AND payment_code=\'{k}\'")
             
             # todayの分
@@ -78,15 +82,18 @@ def update_rates():
 
             # stateテーブルの値をアップデート
             # 全ての処理が終わったらstateテーブルの値を更新する
-            if state == '1':
-                cursor.execute("UPDATE state SET state = '2' WHERE id = 1")
-            elif state == '2':
-                cursor.execute("UPDATE state SET state = '3' WHERE id = 1")
-            elif state == '3':
-                cursor.execute("UPDATE state SET state = '1' WHERE id = 1")
-            else:
-                cursor.execute("UPDATE state SET state = '1' WHERE id = 1")
-            # ↑をupdate文にする
+            def update_state(state):
+                if state == '1':
+                    cursor.execute("UPDATE state SET state = '2' WHERE id = 1")
+                elif state == '2':
+                    cursor.execute("UPDATE state SET state = '3' WHERE id = 1")
+                elif state == '3':
+                    cursor.execute("UPDATE state SET state = '1' WHERE id = 1")
+                else:
+                    cursor.execute("UPDATE state SET state = '1' WHERE id = 1")
+                # ↑をupdate文にする
+
+            update_state(state[0])
 
         connection.commit()
 

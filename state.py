@@ -11,7 +11,6 @@ def test():
         user='unKnown',
         port=0000,
         password="unKnown",
-
     )
 
     # 関数でwith文を囲っても大丈夫っぽい
